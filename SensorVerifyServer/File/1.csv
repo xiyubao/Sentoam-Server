@@ -1,0 +1,9 @@
+classifier&TN&TP &FN&FP&Accuracy&Precision&Recall_rate&F1_score
+SVM&1641.0000&1.0000&1.0000&1.0000
+Decision Tree&1641.0000&1.0000&1.0000&1.0000
+Logistic Regression&1641.0000&1.0000&1.0000&1.0000
+Random Forest&1641.0000&1.0000&1.0000&1.0000
+Kernal-SVM&1641.0000&1.0000&1.0000&1.0000
+Resilient Back-propagation&1640.9167&1.0000&0.9091&0.9524
+Back-Propagation&1640.6667&0.6000&1.0000&0.7500
+Levenberg-Marquardt&1641.0000&1.0000&1.0000&1.0000

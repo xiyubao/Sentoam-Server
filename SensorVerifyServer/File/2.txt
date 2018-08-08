@@ -1,0 +1,9 @@
+classifier&TN&TP &FN&FP&Accuracy&Precision&Recall_rate&F1_score
+SVM&1.0000&1.0000&1.0000&1.0000 \cr
+Decision Tree&1.0000&1.0000&1.0000&1.0000 \cr
+Logistic Regression&1.0000&1.0000&1.0000&1.0000 \cr
+Random Forest&1.0000&1.0000&1.0000&1.0000 \cr
+Kernal-SVM&1.0000&1.0000&1.0000&1.0000 \cr
+Resilient Back-propagation&0.9167&1.0000&0.9091&0.9524 \cr
+Back-Propagation&0.6667&0.6000&1.0000&0.7500 \cr
+Levenberg-Marquardt&1.0000&1.0000&1.0000&1.0000 \cr
