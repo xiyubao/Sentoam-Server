@@ -1,0 +1,511 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<html xmlns="http://www.w3.org/1999/xhtml">  
+<head>  
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+<script src="http://www.w3school.com.cn/jquery/jquery-1.11.1.min.js"></script>  
+
+<script src='https://www.totmob.com/nearbytes/plugin/js-fl/NearBytes.js' type='text/javascript' charset='utf-8'></script>
+<meta name="renderer" content="webkit">  
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>  
+<title>SDS</title>  
+<script>
+<!-- 设置wave-->
+	
+	var appid=null;
+	var appkey=null;
+	var listener={
+ 		onReceiveData:function(data){alert(data);},
+ 		onReceiveError:function(code,msg){alert("Error:"+code+","+msg);}
+	}
+	function initNearBytes(){
+		//NearBytesPlugin.debugMode();
+		NearBytesPlugin.setNearBytesListening(listener);
+		NearBytesPlugin.init( appid, appkey, function(){
+			NearBytesPlugin.startListening();
+		});
+	}
+	
+	function sleep(d){
+ 		 for(var t = Date.now();Date.now() - t <= d;);
+		}
+	
+	function play(fre,sound)
+	{
+		// 创建音频上下文  
+		var audioCtx = new AudioContext();
+		
+		// 创建音调控制对象  
+		var oscillator = audioCtx.createOscillator();
+		// 创建音量控制对象  
+		var gainNode = audioCtx.createGain();
+		// 音调音量关联  
+		oscillator.connect(gainNode);
+		// 音量和设备关联  
+		gainNode.connect(audioCtx.destination);
+		// 音调类型指定为正弦波  
+		oscillator.type = 'sine';
+		
+		// 设置音调频率  
+		oscillator.frequency.value =  fre;
+		// 先把当前音量设为0  
+		gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+		// 0.01秒时间内音量从刚刚的0变成1，线性变化 
+		gainNode.gain.linearRampToValueAtTime(sound, audioCtx.currentTime + 0.01);
+		// 声音走起 
+		oscillator.start(audioCtx.currentTime);
+		// 1秒时间内音量从刚刚的1变成0.001，指数变化 
+		//gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
+		// 1秒后停止声音 
+		oscillator.stop(audioCtx.currentTime + 1);	
+		
+		
+		
+	}
+
+</script>
+</head>  
+
+<body onload="initNearBytes()">  
+<div align="center" style="color: green" id="top">---------------消息记录----------------</div>  
+<div align="center" id="list"></div>  
+<div align="center" id="list2"></div>  
+<div align="center" style="color: green" id="bottom">---------------消息记录----------------</div>  
+<div align="center">  
+      <textarea name="textarea" cols="45" rows="10" readonly="readonly" id="textarea" style="overflow:scroll;overflow-x:hidden"></textarea><br/>  
+            
+                  SendInfo：   
+      <input width="10" type="text" name="sendmsg" id="sendmsg"/>  
+      <input width="50" type="button" name="button" id="button" onclick="sendMessage()" value=" Send " />  
+      
+      <br/><br/><br/>
+</div>  
+
+<div align="center">
+	<input  type="button" name="sendT" id="sendT" onclick="SendT()" value="sendT" style="width:100px;height:100px"/>
+    <input width="50" type="button" name="sendF" id="sendF" onclick="SendF()" value="sendF" style="width:100px;height:100px" />
+    <input width="50" type="button" name="send" id="send" onclick="Send()" value="send" style="width:100px;height:100px"/>
+    <input width="50" type="button" name="update" id="update" onclick="update()" value="update" style="width:100px;height:100px"/>
+</div>
+  
+<div align="center">
+	<input width="50" type="button" name="train" id="train" onclick="train()" value="train" style="width:100px;height:100px" />
+	<input width="50" type="button" name="flagT" id="flagT" onclick="FlagT()" value="flagT" style="width:100px;height:100px" />
+    <input width="50" type="button" name="flagF" id="flagF" onclick="FlagF()" value="flagF" style="width:100px;height:100px" />
+    <input width="50" type="button" name="result" id="result" onclick="result()" value="result" style="width:100px;height:100px" />
+</div>
+  
+<div align="center">
+	Light : <input width="10" type="text" name="light" id="light"/>  
+</div>
+
+<div align="center">
+	Location : <input width="30" type="text" name="locate" id="locate" />
+</div>
+
+<div align="center">
+	Accelerometer : <input width="30" type="text" name="accelerate" id="accelerate" />
+</div>
+
+<div align="center">
+	Orientation : <input width="10" type="text" name="orient" id="orient"/>
+</div>
+
+
+
+<div align="center">
+	Proximity : <input width="30" type="text" name="locate" id="proximity" />
+</div>
+
+</body>  
+  
+</html>  
+
+<script type="text/javascript">  
+	
+	var locate_time =0;
+
+	var mLux = 0;
+	var xLoc=0;	
+	var yLoc = 0;	
+
+	var ax,ay,az;
+	
+
+	var experiment = 2;
+	setsensor();
+	function setsensor(){
+		
+		GetLight();
+		GetOrient();
+		GetLocate();
+		GetProximity();
+		GetAccelerometer();
+	}
+	
+	
+	
+	function GetLight(){
+			/*
+		try{
+			light.value ="test";
+			window.addEventListener('devicelight', 
+			function(event) {
+				mLux = event.value;
+				light.value = mLux;
+				
+			},true);
+		}
+		catch(e){
+			light.value = e.message;	
+		}
+*/
+		/*
+		if ( 'AmbientLightSensor' in window ) {
+  const sensor = new AmbientLightSensor({frequency: 20});
+  
+  accelerate.value = "???";
+  
+  sensor.onreading = () => {
+	  
+   // Defaut ISO value.
+        const ISO = 100;
+        // Incident-light calibration constant.
+        const C = 250;
+
+        let EV = Math.round(Math.log2((als.illuminance * ISO) / C));
+        accelerate.value = EV;
+  };
+  sensor.onerror = (event) => {
+    accelerate.value = event.error.name+","+ event.error.message;
+  };
+  sensor.start();
+}
+	else{
+		light.value = "do not suppport AmbientLightSensor";
+	}*/
+	}
+	
+	
+	
+
+	function GetOrient(){
+		try {  
+			var text = "";  
+			window.addEventListener("deviceorientation", orientationHandler, false);  
+			function orientationHandler(event) {  
+				text = ""  
+				 
+				text += "α(" + Math.round(event.alpha) + "),";  
+				text += "β(" + Math.round(event.beta) + "),";  
+				text += "γ(" + Math.round(event.gamma) + ")";  
+				orient.value = text;  
+				
+				ox = Math.round(event.alpha);
+				oy = Math.round(event.beta);
+				oz = Math.round(event.gamma);
+			}  
+    	}  
+    catch (e) {  
+        orient.value = e.message;  
+   		}  		
+	}
+	
+	function GetLocate()
+	{
+		locate.value = "test0";
+		if (navigator.geolocation)
+		{
+			navigator.geolocation.watchPosition(
+                updataPosition,
+                getPositionError,
+                 {
+                    "enableHighAcuracy": true 
+                });
+		}
+		else{locate.value="Geolocation is not supported by this browser.";}
+	}
+	
+	function GetAccelerometer()
+	{
+		if (window.DeviceMotionEvent) {
+			window.addEventListener("devicemotion", motionHandler, false);
+} else {
+document.body.innerHTML = "What user agent u r using???";
+} 
+	
+	}
+	
+	function motionHandler(event)
+	{
+		var acc = event.accelerationIncludingGravity               ;
+		accelerate.value = acc.x+","+acc.y+","+acc.z;	
+		
+		ax = acc.x;
+		ay = acc.y;
+		az = acc.z;
+	}
+	
+	function showPosition(position)  
+   	 {  
+		xLoc = position.coords.latitude;
+		yLoc = position.coords.longitude;
+        	locate.value=xLoc+","+yLoc;
+   	 }  
+
+	function updataPosition(position)
+	{    
+		locate_time = locate_time +1;
+		locate.value = "test";
+		xLoc = position.coords.latitude;
+		yLoc = position.coords.longitude;
+    		locate.value = "("+locate_time +")"+position.coords.latitude + ","+position.coords.longitude;        
+	}
+	
+	function getPositionError(error){  
+		locate.value = error.code;
+
+		switch(error.code){  
+                case error.TIMEOUT :  
+                alert( " 连接超时，请重试 " );  
+                break;  
+        case error.PERMISSION_DENIED :  
+                alert( " 您拒绝了使用位置共享服务，查询已取消 " );  
+                break;  
+        case error.POSITION_UNAVAILABLE :  
+                alert( " 亲爱的火星网友，非常抱歉，我们暂时无法为您所在的星球提供位置服务 " );  
+                break;  
+        }  
+	}
+
+	function GetProximity(){
+		proximity.value = "test";
+		window.addEventListener('deviceproximity', function(event) {
+  proximity.value = event.value;
+});
+	}
+
+	
+	var ip ="111.231.57.188";
+	var port = "8887";
+
+    var webSocket=new WebSocket("ws://"+ip+":"+port);  
+   
+    webSocket.onerror = function(event) {  
+       alert(event.data);  
+    };  
+   
+    webSocket.onopen = function(event) {  
+      document.getElementById("list").innerHTML+="connecting to "+ip+"/"+port+"\n"; 
+    };  
+   
+    webSocket.onmessage = function(event) {  
+		
+	 var ss = event.data.split('@');
+	  if(ss[1]=="4")
+	  {
+		  document.getElementById("textarea").innerHTML+=gettimestamp()+" get "+"\""+"SDR is not connecting"+"\""+" from "+ip+"\n";
+	  textarea.scrollTop = textarea.scrollHeight;
+	  }
+	  else if(ss[1]=="5")
+	  {
+		  document.getElementById("textarea").innerHTML+=gettimestamp()+" get "+"\""+"Model is not exist"+"\""+" from "+ip+"\n";
+		  textarea.scrollTop = textarea.scrollHeight;
+	  }
+	  else if(ss[1]=="6")
+	  {
+		  document.getElementById("textarea").innerHTML+=gettimestamp()+" get "+"\""+"Flag button is not allowed to press"+"\""+" from "+ip+"\n";
+		  textarea.scrollTop = textarea.scrollHeight;
+	  }
+	  else{
+      document.getElementById("textarea").innerHTML+=gettimestamp()+" get "+"\""+event.data+"\""+" from "+ip+"\n";
+	  textarea.scrollTop = textarea.scrollHeight;
+	  }
+	 
+    };  
+     
+	var port2 = "8889";
+	var webSocket2=new WebSocket("ws://"+ip+":"+port2);  
+	
+	
+	webSocket2.onerror = function(event) {  
+       alert(event.data);  
+    };  
+   
+    webSocket2.onopen = function(event) {  
+      document.getElementById("list2").innerHTML+="connecting to "+ip+"/"+port2+"\n"; 
+    };  
+   
+    webSocket2.onmessage = function(event) {  
+		document.getElementById("textarea").innerHTML+=gettimestamp()+" get "+"\""+event.data+"\""+" from "+ip+"\n";
+		var ss = event.data.split('@');
+		var tt = ss[1].split('#');
+		if(ss[0]=="android"&&tt[0]=="1")
+			light.value = tt[1];
+			
+		mLux = tt[1];
+
+		textarea.scrollTop = textarea.scrollHeight;
+	};
+	   
+	  
+    function sendMessage() {  
+      var msg=document.getElementById("sendmsg").value;
+	mLux = msg;
+      //document.getElementById("textarea").innerHTML+=gettimestamp()+" send "+"\""+msg+"\""+" to "+ip+"\n"; 
+     // webSocket.send(msg);  
+	  textarea.scrollTop = textarea.scrollHeight;
+    }  
+	
+	function SendT(){
+		var str ="web@1@"+getsensorlist()+"#1";
+		 document.getElementById("textarea").innerHTML+=gettimestamp()+" send "+"\""+str+"\""+" to "+ip+"\n"; 
+		webSocket.send(str);
+		textarea.scrollTop = textarea.scrollHeight;
+	}
+	
+	function SendF(){
+		var str ="web@1@"+getsensorlist()+"#0";
+		 document.getElementById("textarea").innerHTML+=gettimestamp()+" send "+"\""+str+"\""+" to "+ip+"\n"; 
+		webSocket.send(str);
+		textarea.scrollTop = textarea.scrollHeight;
+	}
+	
+	function Send(){
+		var str ="web@2@"+getsensorlist();
+		 document.getElementById("textarea").innerHTML+=gettimestamp()+" send "+"\""+str+"\""+" to "+ip+"\n"; 
+		webSocket.send(str);
+		textarea.scrollTop = textarea.scrollHeight;
+	}
+	
+	var wave_info = '45g8rw';
+	
+	function update(){
+			//alert(NearBytesPlugin);
+			//var str = NearBytesPlugin.send('hello');
+			//alert(str);
+			/*var fre = new Array;
+			var len = 5;
+			fre[0] = 18000;
+			fre[1] = 18500;
+			fre[2] = 19000;
+			fre[3] = 19500;
+			fre[4] = 20000;
+			
+			var msg=document.getElementById("sendmsg").value;
+			play(msg,10);
+			
+			//	for(var i=0;i<len;++i)
+				//	{
+					//	play(fre[i],11);
+						//sleep(1000);	
+				//	}
+			
+			
+			document.getElementById("textarea").innerHTML+=gettimestamp()+" send frequency :"+msg;*/
+			
+			webSocket2.send("web@1");
+		/*var str= window.Android.getLux();
+		mLux = str;
+		light.value = str;
+		
+		xLoc = window.Android.getxLoc();
+		yLoc = window.Android.getyLoc();
+		locate.value=xLoc+","+yLoc;*/
+	}
+	
+	function train(){
+		var str ="web@4@"+getsensorlist();
+		document.getElementById("textarea").innerHTML+=gettimestamp()+" send "+"\""+str+"\""+" to "+ip+"\n"; 
+		webSocket.send(str);
+		textarea.scrollTop = textarea.scrollHeight;
+	}
+	
+	function FlagT(){
+		var str = "web@3@1";
+		document.getElementById("textarea").innerHTML+=gettimestamp()+" send "+"\""+str+"\""+" to "+ip+"\n"; 
+		webSocket.send(str);
+		textarea.scrollTop = textarea.scrollHeight;
+	}
+	
+	function FlagF(){
+		var str = "web@3@0";
+		document.getElementById("textarea").innerHTML+=gettimestamp()+" send "+"\""+str+"\""+" to "+ip+"\n"; 
+		webSocket.send(str);
+		textarea.scrollTop = textarea.scrollHeight;
+	}
+	
+	function result(){
+		var str = "web@5";
+		document.getElementById("textarea").innerHTML+=gettimestamp()+" send "+"\""+str+"\""+" to "+ip+"\n"; 
+		webSocket.send(str);
+		textarea.scrollTop = textarea.scrollHeight;
+	}
+	
+	
+	function getsensorlist(){
+
+		var str="";
+
+		if(experiment==0){
+			
+			var d = 19;	
+			str += d+"#";
+		
+			for(var i=0;i<d;++i)
+			{
+				if(i<d-1)
+					str+=Math.random()+",";
+				else
+					str += Math.random();
+			}
+		}
+		else if(experiment == 1){
+			var d=3;
+			str += d+"#";
+			str += xLoc+","+yLoc+","+mLux;
+		}
+		else if(experiment == 2){
+			var d=9;
+			str += d+"#";
+			str += mLux+","+xLoc+","+yLoc+","+ax+","+ay+","+az+","+ox+","+oy+","+oz;
+		}
+		
+		return str;
+
+	}
+	
+	function gettimestamp(){
+		var currentDate = new Date();  
+		var timestamp ="";
+		
+		var hour = currentDate.getHours();
+		if(hour<10)
+			timestamp += "0";
+		timestamp += hour+":";
+			
+		var minute = currentDate.getMinutes();
+		if(minute<10)
+			timestamp += "0";
+		timestamp += minute+":";
+		
+		var second = currentDate.getSeconds();
+		if(second<10)
+			timestamp += "0";
+		timestamp += second+":";
+		
+		var millisecond = currentDate.getMilliseconds();
+		if(millisecond<100)
+			timestamp += "0"+millisecond;
+		else
+			timestamp += millisecond;
+			
+		return timestamp;
+	}
+	
+	
+	
+   
+
+	
+	
+ </script>  
